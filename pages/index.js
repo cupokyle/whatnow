@@ -16,7 +16,6 @@ export default function Home() {
       body: JSON.stringify({ prompty: userInput }),
     });
     const data = await response.json();
-    console.log("data", data);
     setResult(data.result);
     setUserInput("");
   }

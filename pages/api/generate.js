@@ -14,7 +14,6 @@ export default async function (req, res) {
 }
 
 function generatePrompt(prompty) {
-  console.log("prompty", prompty);
   const capitalizedPrompty =
     prompty[0].toUpperCase() + prompty.slice(1).toLowerCase();
   return `Write a two sentence story about Howie.
