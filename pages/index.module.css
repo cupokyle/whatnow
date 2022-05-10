@@ -28,6 +28,7 @@
 }
 .main .icon {
   width: 34px;
+  border-radius: 25%;
 }
 .main h3 {
   font-size: 32px;

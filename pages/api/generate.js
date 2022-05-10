@@ -7,21 +7,22 @@ const openai = new OpenAIApi(configuration);
 
 export default async function (req, res) {
   const completion = await openai.createCompletion("text-davinci-002", {
-    prompt: generatePrompt(req.body.animal),
+    prompt: generatePrompt(req.body.prompty),
     temperature: 0.6,
   });
   res.status(200).json({ result: completion.data.choices[0].text });
 }
 
-function generatePrompt(animal) {
-  const capitalizedAnimal =
-    animal[0].toUpperCase() + animal.slice(1).toLowerCase();
-  return `Suggest three names for an animal that is a superhero.
+function generatePrompt(prompty) {
+  console.log("prompty", prompty);
+  const capitalizedPrompty =
+    prompty[0].toUpperCase() + prompty.slice(1).toLowerCase();
+  return `Write a two sentence story about Howie.
 
-Animal: Cat
-Names: Captain Sharpclaw, Agent Fluffball, The Incredible Feline
-Animal: Dog
-Names: Ruff the Protector, Wonder Canine, Sir Barks-a-Lot
-Animal: ${capitalizedAnimal}
-Names:`;
+Prompty: Cat
+Ideas: Howie bought a new cat. The cat attacked him and he screamed.
+Prompty: murder Jack Layton
+Ideas: Howie believes that Jack Layton was murdered. He's always talking about it.
+Prompty: ${capitalizedPrompty}
+Ideas:`;
 }
