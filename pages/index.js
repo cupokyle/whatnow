@@ -35,6 +35,7 @@ export default function Home() {
     });
     const data = await response.json();
     const newData = JSON.parse(data.result);
+    console.log(newData);
     setResult(newData.context);
     setLeftButton(newData.leftButton);
     setRightButton(newData.rightButton);
@@ -65,7 +66,8 @@ export default function Home() {
         </form>
         <div className={styles.result}>{result}</div>
         <form onSubmit={onSubmitButton} className={styles.buttonbox}>
-          {result && (
+          {result && !leftButton && !rightButton && <h3>Game Over</h3>}
+          {result && leftButton && (
             <input
               className={styles.button}
               type="submit"
@@ -74,7 +76,7 @@ export default function Home() {
               onClick={(e) => setUserInput(e.target.value)}
             />
           )}
-          {result && (
+          {result && rightButton && (
             <input
               className={styles.button}
               type="submit"

@@ -37,14 +37,21 @@
 }
 .main .buttonbox {
   display: flex;
-  flex-direction: row;
-  margin-top: 50px;
-  justify-content: space-evenly;
-  width: 70%;
+  flex-direction: column;
+  margin-top: 25px;
+  padding: 15px;
+  height: 30%;
+  width: 100%;
+  justify-content: space-around;
 }
+
 .main .buttonbox .button {
-  padding: 10px;
   font-weight: bold;
+  height: 8vh;
+  max-height: 15vh;
+  padding: 0 5px 0 5px;
+  margin: 0 10px 10px 10px;
+  word-wrap: normal;
 }
 .main h3 {
   font-size: 32px;
@@ -53,6 +60,7 @@
   color: #202123;
   margin: 16px 0 40px;
   font-family: "Pacifico", cursive;
+  text-align: center;
 }
 .main form {
   display: flex;
@@ -82,5 +90,5 @@
 .main .result {
   font-weight: bold;
   font-size: large;
-  margin-top: 40px;
+  margin: 25px;
 }
