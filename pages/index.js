@@ -30,7 +30,8 @@ export default function Home() {
       <main className={styles.main}>
         <img src="/kyle.jpg" className={styles.icon} />
         <h3>HowieGen</h3>
-        <form onSubmit={onSubmit}>
+        <h3>Is down for maintenance</h3>
+        {/* <form onSubmit={onSubmit}>
           <input
             type="text"
             name="prompty"
@@ -39,7 +40,7 @@ export default function Home() {
             onChange={(e) => setUserInput(e.target.value)}
           />
           <input type="submit" value="Generate Text" />
-        </form>
+        </form> */}
         <div className={styles.result}>{result}</div>
       </main>
     </div>
