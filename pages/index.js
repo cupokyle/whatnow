@@ -10,7 +10,6 @@ export default function Home() {
 
   async function onSubmit(event) {
     event.preventDefault();
-    console.log("userInput", userInput);
     const response = await fetch("/api/generate", {
       method: "POST",
       headers: {
