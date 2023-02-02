@@ -89,3 +89,10 @@
   font-size: large;
   margin: 25px;
 }
+
+.main details {
+margin-top: 15px;
+width: 100%;
+text-align: center;
+font-size: 0.5em;
+}

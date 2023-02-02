@@ -2,6 +2,7 @@ import Head from "next/head";
 import { useState } from "react";
 import styles from "./index.module.css";
 import axios from 'axios';
+import Loading from './Loading';
 
 export default function Home() {
   const [userInput, setUserInput] = useState("");
@@ -13,8 +14,8 @@ export default function Home() {
   const [imgResult, setImgResult] = useState("");
 
   async function onSubmit(event) {
-    setImgResult('https://s3.gifyu.com/images/Bean-Eater-1s-200px-1.gif');
     event.preventDefault();
+    setImgResult('loading');
     const response = await fetch("/api/generate", {
       method: "POST",
       headers: {
@@ -38,7 +39,6 @@ export default function Home() {
       },
       data: imgdata
     };
-
     axios(config)
       .then(function (res) {
         setImgResult(res.data.data[0].url);
@@ -58,7 +58,7 @@ export default function Home() {
   }
   async function onSubmitButton(event) {
     event.preventDefault();
-    setImgResult('https://s3.gifyu.com/images/Bean-Eater-1s-200px-1.gif');
+    setImgResult('loading');
     const response = await fetch("/api/generate", {
       method: "POST",
       headers: {
@@ -112,7 +112,7 @@ export default function Home() {
         <img src="/badlibs.png" className={styles.icon} />
         <h3>What Now?</h3>
         <form onSubmit={onSubmit}>
-          {imgResult === 'https://s3.gifyu.com/images/Bean-Eater-1s-200px-1.gif' && <img src={imgResult} width="100px" />}
+          {imgResult === 'loading' && <Loading />}
           {!result && (
             <input
               type="text"
@@ -124,11 +124,11 @@ export default function Home() {
           )}
           {!result && <button type="submit">Generate Text</button>}
         </form>
-        {imgResult !== '' && imgResult !== 'https://s3.gifyu.com/images/Bean-Eater-1s-200px-1.gif' && <img src={imgResult} width="200px" />}
+        {imgResult !== '' && imgResult !== 'loading' && <img src={imgResult} width="200px" />}
         <div className={styles.result}>{result}</div>
         <form onSubmit={onSubmitButton} className={styles.buttonbox}>
           {result && !leftButton && !rightButton && !leftTwoButton && !rightTwoButton && <h3>Game Over</h3>}
-          {imgResult !== 'https://s3.gifyu.com/images/Bean-Eater-1s-200px-1.gif' && result && leftButton &&
+          {imgResult !== 'loading' && result && leftButton &&
             <button
               className={styles.button}
               type="submit"
@@ -137,7 +137,7 @@ export default function Home() {
               onClick={(e) => setUserInput(e.target.value)}
               >{leftButton}</button>
           }
-          {imgResult !== 'https://s3.gifyu.com/images/Bean-Eater-1s-200px-1.gif' && result && rightButton &&
+          {imgResult !== 'loading' && result && rightButton &&
             <button
               className={styles.button}
               type="submit"
@@ -146,7 +146,7 @@ export default function Home() {
               onClick={(e) => setUserInput(e.target.value)}
               >{rightButton}</button>
           }
-          {imgResult !== 'https://s3.gifyu.com/images/Bean-Eater-1s-200px-1.gif' && result && leftTwoButton && 
+          {imgResult !== 'loading' && result && leftTwoButton && 
             <button
               className={styles.button}
               type="submit"
@@ -155,7 +155,7 @@ export default function Home() {
               onClick={(e) => setUserInput(e.target.value)}
             >{leftTwoButton}</button>
           }
-          {imgResult !== 'https://s3.gifyu.com/images/Bean-Eater-1s-200px-1.gif' && result && rightTwoButton &&
+          {imgResult !== 'loading' && result && rightTwoButton &&
             <button
               className={styles.button}
               type="submit"
