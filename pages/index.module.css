@@ -43,15 +43,14 @@
   height: 30%;
   width: 100%;
   justify-content: space-around;
+  align-items: center;
 }
 
 .main .buttonbox .button {
-  font-weight: bold;
-  height: 8vh;
-  max-height: 15vh;
   padding: 0 5px 0 5px;
   margin: 0 10px 10px 10px;
   word-wrap: normal;
+  width: 75%
 }
 .main h3 {
   font-size: 32px;
@@ -66,6 +65,7 @@
   display: flex;
   flex-direction: column;
   width: 320px;
+  align-items: center;
 }
 .main input[type="text"] {
   padding: 12px 16px;
@@ -78,10 +78,9 @@
   opacity: 1;
 }
 .main input[type="submit"] {
-  padding: 12px 0;
+  padding: 12px;
   color: #fff;
   background-color: #353740;
-  font-size: large;
   border: none;
   border-radius: 4px;
   text-align: center;
