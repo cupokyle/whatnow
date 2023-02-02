@@ -165,6 +165,7 @@ export default function Home() {
               >{rightTwoButton}</button>
           }
         </form>
+        <span className="attribute"><a target="_blank" rel="noopener noreferrer" href="https://iconscout.com/lottie/loading-state-3830434">Loading Icon</a> courtesy of Fujio Studio</span>
       </main>
     </div>
   );
