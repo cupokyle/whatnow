@@ -13,7 +13,7 @@ export default function Home() {
   const [imgResult, setImgResult] = useState("");
 
   async function onSubmit(event) {
-    setImgResult('https://media3.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif?cid=ecf05e471pwmo03hyhg4v6pv4fg8a0pcfrucr5ob7oudbhgw&rid=giphy.gif&ct=g');
+    setImgResult('https://s3.gifyu.com/images/Bean-Eater-1s-200px-1.gif');
     event.preventDefault();
     const response = await fetch("/api/generate", {
       method: "POST",
@@ -58,7 +58,7 @@ export default function Home() {
   }
   async function onSubmitButton(event) {
     event.preventDefault();
-    setImgResult('https://media3.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif?cid=ecf05e471pwmo03hyhg4v6pv4fg8a0pcfrucr5ob7oudbhgw&rid=giphy.gif&ct=g');
+    setImgResult('https://s3.gifyu.com/images/Bean-Eater-1s-200px-1.gif');
     const response = await fetch("/api/generate", {
       method: "POST",
       headers: {
@@ -112,7 +112,7 @@ export default function Home() {
         <img src="/badlibs.png" className={styles.icon} />
         <h3>What Now?</h3>
         <form onSubmit={onSubmit}>
-          {imgResult === 'https://media3.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif?cid=ecf05e471pwmo03hyhg4v6pv4fg8a0pcfrucr5ob7oudbhgw&rid=giphy.gif&ct=g' && <img src={imgResult} width="100px" />}
+          {imgResult === 'https://s3.gifyu.com/images/Bean-Eater-1s-200px-1.gif' && <img src={imgResult} width="100px" />}
           {!result && (
             <input
               type="text"
@@ -122,48 +122,48 @@ export default function Home() {
               onChange={(e) => setUserInput(e.target.value)}
             />
           )}
-          {!result && <input type="submit" value="Generate Text" />}
+          {!result && <button type="submit">Generate Text</button>}
         </form>
-        {imgResult !== '' && imgResult !== 'https://media3.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif?cid=ecf05e471pwmo03hyhg4v6pv4fg8a0pcfrucr5ob7oudbhgw&rid=giphy.gif&ct=g' && <img src={imgResult} width="200px" />}
+        {imgResult !== '' && imgResult !== 'https://s3.gifyu.com/images/Bean-Eater-1s-200px-1.gif' && <img src={imgResult} width="200px" />}
         <div className={styles.result}>{result}</div>
         <form onSubmit={onSubmitButton} className={styles.buttonbox}>
           {result && !leftButton && !rightButton && !leftTwoButton && !rightTwoButton && <h3>Game Over</h3>}
-          {imgResult !== 'https://media3.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif?cid=ecf05e471pwmo03hyhg4v6pv4fg8a0pcfrucr5ob7oudbhgw&rid=giphy.gif&ct=g' && result && leftButton && (
-            <input
+          {imgResult !== 'https://s3.gifyu.com/images/Bean-Eater-1s-200px-1.gif' && result && leftButton &&
+            <button
               className={styles.button}
               type="submit"
               name="prompty"
               value={leftButton}
               onClick={(e) => setUserInput(e.target.value)}
-            />
-          )}
-          {imgResult !== 'https://media3.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif?cid=ecf05e471pwmo03hyhg4v6pv4fg8a0pcfrucr5ob7oudbhgw&rid=giphy.gif&ct=g' && result && rightButton && (
-            <input
+              >{leftButton}</button>
+          }
+          {imgResult !== 'https://s3.gifyu.com/images/Bean-Eater-1s-200px-1.gif' && result && rightButton &&
+            <button
               className={styles.button}
               type="submit"
               name="prompty"
               value={rightButton}
               onClick={(e) => setUserInput(e.target.value)}
-            />
-          )}
-          {imgResult !== 'https://media3.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif?cid=ecf05e471pwmo03hyhg4v6pv4fg8a0pcfrucr5ob7oudbhgw&rid=giphy.gif&ct=g' && result && leftTwoButton && (
-            <input
+              >{rightButton}</button>
+          }
+          {imgResult !== 'https://s3.gifyu.com/images/Bean-Eater-1s-200px-1.gif' && result && leftTwoButton && 
+            <button
               className={styles.button}
               type="submit"
               name="prompty"
               value={leftTwoButton}
               onClick={(e) => setUserInput(e.target.value)}
-            />
-          )}
-          {imgResult !== 'https://media3.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif?cid=ecf05e471pwmo03hyhg4v6pv4fg8a0pcfrucr5ob7oudbhgw&rid=giphy.gif&ct=g' && result && rightTwoButton && (
-            <input
+            >{leftTwoButton}</button>
+          }
+          {imgResult !== 'https://s3.gifyu.com/images/Bean-Eater-1s-200px-1.gif' && result && rightTwoButton &&
+            <button
               className={styles.button}
               type="submit"
               name="prompty"
               value={rightTwoButton}
               onClick={(e) => setUserInput(e.target.value)}
-            />
-          )}
+              >{rightTwoButton}</button>
+          }
         </form>
       </main>
     </div>
