@@ -147,13 +147,13 @@ export default function Home() {
           {result && !leftButton && !rightButton && !leftTwoButton && !rightTwoButton && <h3>Game Over</h3>}
           {imgResult !== 'loading' && (triggerNumber === 10 || triggerNumber === 1) && result && randomEvent &&
             <div className={styles.achievement}>
-              <img src="/star-shape.png" width="20px" height="20px"></img>
+              <img alt="star" src="/star-shape.png" width="20px" height="20px"></img>
               <h4 className={styles.congrats}> &nbsp;&nbsp;Congratulations!&nbsp; </h4>
               <h4
                 className={styles.random}
                 name="prompty"
               >{randomEvent} &nbsp;&nbsp;</h4>
-              <img src="/star-shape.png" width="20px" height="20px"></img>
+              <img alt="star" src="/star-shape.png" width="20px" height="20px"></img>
             </div>
           }
           {imgResult !== 'loading' && result && leftButton &&
