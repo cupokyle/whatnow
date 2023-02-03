@@ -12,10 +12,13 @@ export default function Home() {
   const [rightButton, setRightButton] = useState("");
   const [leftTwoButton, setLeftTwoButton] = useState("");
   const [rightTwoButton, setRightTwoButton] = useState("");
+  const [randomEvent, setRandomEvent] = useState("");
+  const [triggerNumber, setTriggerNumber] = useState(0);
   const [imgResult, setImgResult] = useState("");
   const [show, setShow] = useState(false);
   const [artStyle, setArtStyle] = useState("digital art");
   const [storyStarting, setStoryStarting] = useState(false);
+  const [pageError, setPageError] = useState(false);
 
   async function onSubmit(event) {
     event.preventDefault();
@@ -50,6 +53,7 @@ export default function Home() {
       })
       .catch(function (error) {
         console.log(error);
+        setPageError(true);
       });
 
     const data = await response.json();
@@ -59,12 +63,15 @@ export default function Home() {
     setRightButton(newData.rightButton);
     setLeftTwoButton(newData.leftTwoButton);
     setRightTwoButton(newData.rightTwoButton);
+    setRandomEvent(newData.randomEvent);
     setStoryStarting(false);
     setUserInput("");
   }
   async function onSubmitButton(event) {
     event.preventDefault();
     setImgResult('loading');
+    let triggerEvent = Math.floor((Math.random() * 10) + 1);
+    setTriggerNumber(triggerEvent);
     const response = await fetch("/api/generate", {
       method: "POST",
       headers: {
@@ -97,6 +104,7 @@ export default function Home() {
       })
       .catch(function (error) {
         console.log(error);
+        setPageError(true);
       });
 
     setResult(newData.context);
@@ -104,9 +112,9 @@ export default function Home() {
     setRightButton(newData.rightButton);
     setLeftTwoButton(newData.leftTwoButton);
     setRightTwoButton(newData.rightTwoButton);
+    setRandomEvent(newData.randomEvent);
     setUserInput("");
   }
-
   return (
     <div>
       <Head>
@@ -117,7 +125,7 @@ export default function Home() {
       <main className={styles.main}>
         <img src="/badlibs.png" className={styles.icon} />
         <h3>What Now?</h3>
-          {imgResult === 'loading' && <Loading />}
+        {imgResult === 'loading' && <Loading />}
         {!storyStarting && <form onSubmit={onSubmit}>
           {!result && (
             <input
@@ -131,9 +139,23 @@ export default function Home() {
           {!result && <button type="submit">Generate Story</button>}
         </form>}
         {imgResult !== '' && imgResult !== 'loading' && <img src={imgResult} width="200px" />}
+          {pageError && <h4 className={styles.error}>Due to AI limitations or banned request, this prompt cannot be completed.</h4>}
+          {pageError && <h5 className={styles.error2}>Please refresh the page</h5>}
+
         <div className={styles.result}>{result}</div>
         <form onSubmit={onSubmitButton} className={styles.buttonbox}>
           {result && !leftButton && !rightButton && !leftTwoButton && !rightTwoButton && <h3>Game Over</h3>}
+          {imgResult !== 'loading' && (triggerNumber === 10 || triggerNumber === 1) && result && randomEvent &&
+            <div className={styles.achievement}>
+              <img alt="star" src="/star-shape.png" width="20px" height="20px"></img>
+              <h4 className={styles.congrats}> &nbsp;&nbsp;Congratulations!&nbsp; </h4>
+              <h4
+                className={styles.random}
+                name="prompty"
+              >{randomEvent} &nbsp;&nbsp;</h4>
+              <img alt="star" src="/star-shape.png" width="20px" height="20px"></img>
+            </div>
+          }
           {imgResult !== 'loading' && result && leftButton &&
             <button
               className={styles.button}
@@ -141,7 +163,7 @@ export default function Home() {
               name="prompty"
               value={leftButton}
               onClick={(e) => setUserInput(e.target.value)}
-              >{leftButton}</button>
+            >{leftButton}</button>
           }
           {imgResult !== 'loading' && result && rightButton &&
             <button
@@ -150,9 +172,9 @@ export default function Home() {
               name="prompty"
               value={rightButton}
               onClick={(e) => setUserInput(e.target.value)}
-              >{rightButton}</button>
+            >{rightButton}</button>
           }
-          {imgResult !== 'loading' && result && leftTwoButton && 
+          {imgResult !== 'loading' && result && leftTwoButton &&
             <button
               className={styles.button}
               type="submit"
@@ -168,12 +190,12 @@ export default function Home() {
               name="prompty"
               value={rightTwoButton}
               onClick={(e) => setUserInput(e.target.value)}
-              >{rightTwoButton}</button>
+            >{rightTwoButton}</button>
           }
         </form>
-        <span className="attribute"><a target="_blank" rel="noopener noreferrer" href="https://iconscout.com/lottie/loading-state-3830434">Loading Icon</a> courtesy of Fujio Studio</span>
-      <button onClick={() => setShow(true)}>Settings</button>
-      <Modal onClose={() => setShow(false)} show={show} artStyle={artStyle} setArtStyle={setArtStyle}/>
+        <span className="attribute"><a href="https://iconscout.com/icons/star-shape" target="_blank">Star Shape Icon</a> by <a href="https://iconscout.com/contributors/unicons">Unicons Font</a> on <a href="https://iconscout.com">IconScout and </a><a target="_blank" rel="noopener noreferrer" href="https://iconscout.com/lottie/loading-state-3830434">Loading Icon</a> courtesy of Fujio Studio</span>
+        <button onClick={() => setShow(true)}>Settings</button>
+        <Modal onClose={() => setShow(false)} show={show} artStyle={artStyle} setArtStyle={setArtStyle} />
       </main>
     </div>
   );
