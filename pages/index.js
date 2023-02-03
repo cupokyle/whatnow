@@ -15,9 +15,11 @@ export default function Home() {
   const [imgResult, setImgResult] = useState("");
   const [show, setShow] = useState(false);
   const [artStyle, setArtStyle] = useState("digital art");
+  const [storyStarting, setStoryStarting] = useState(false);
 
   async function onSubmit(event) {
     event.preventDefault();
+    setStoryStarting(true);
     setImgResult('loading');
     const response = await fetch("/api/generate", {
       method: "POST",
@@ -57,6 +59,7 @@ export default function Home() {
     setRightButton(newData.rightButton);
     setLeftTwoButton(newData.leftTwoButton);
     setRightTwoButton(newData.rightTwoButton);
+    setStoryStarting(false);
     setUserInput("");
   }
   async function onSubmitButton(event) {
@@ -114,8 +117,8 @@ export default function Home() {
       <main className={styles.main}>
         <img src="/badlibs.png" className={styles.icon} />
         <h3>What Now?</h3>
-        <form onSubmit={onSubmit}>
           {imgResult === 'loading' && <Loading />}
+        {!storyStarting && <form onSubmit={onSubmit}>
           {!result && (
             <input
               type="text"
@@ -126,7 +129,7 @@ export default function Home() {
             />
           )}
           {!result && <button type="submit">Generate Story</button>}
-        </form>
+        </form>}
         {imgResult !== '' && imgResult !== 'loading' && <img src={imgResult} width="200px" />}
         <div className={styles.result}>{result}</div>
         <form onSubmit={onSubmitButton} className={styles.buttonbox}>

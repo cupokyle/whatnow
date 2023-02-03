@@ -134,3 +134,28 @@ font-size: 0.5em;
   border-top: 1px solid #eee;
   border-bottom: 1px solid #eee;
  }
+
+.settingBox {
+  display: flex;
+  width: 100%;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 2px;
+  background-color: rgb(207, 207, 207);
+}
+
+.settingBox input {
+  margin: 30px;
+}
+
+.main button {
+  padding: 1em;
+  margin: 10px;
+  color: #fff;
+  font-size: 0.75em;
+  background-color: #353740;
+  border: none;
+  border-radius: 4px;
+  text-align: center;
+  cursor: pointer;
+}
