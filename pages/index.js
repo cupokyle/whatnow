@@ -3,6 +3,7 @@ import { useState } from "react";
 import styles from "./index.module.css";
 import axios from 'axios';
 import Loading from './Loading';
+import Modal from "./Modal/Modal";
 
 export default function Home() {
   const [userInput, setUserInput] = useState("");
@@ -12,6 +13,8 @@ export default function Home() {
   const [leftTwoButton, setLeftTwoButton] = useState("");
   const [rightTwoButton, setRightTwoButton] = useState("");
   const [imgResult, setImgResult] = useState("");
+  const [show, setShow] = useState(false);
+  const [artStyle, setArtStyle] = useState("digital art");
 
   async function onSubmit(event) {
     event.preventDefault();
@@ -25,7 +28,7 @@ export default function Home() {
     });
 
     var imgdata = JSON.stringify({
-      "prompt": userInput + ", digital art",
+      "prompt": userInput + `, ${artStyle}`,
       "n": 1,
       "size": "1024x1024"
     });
@@ -70,7 +73,7 @@ export default function Home() {
     const newData = JSON.parse(data.result);
 
     var imgdata = JSON.stringify({
-      "prompt": "You " + userInput + ", digital art",
+      "prompt": "You " + userInput + `, ${artStyle}`,
       "n": 1,
       "size": "1024x1024"
     });
@@ -122,7 +125,7 @@ export default function Home() {
               onChange={(e) => setUserInput(e.target.value)}
             />
           )}
-          {!result && <button type="submit">Generate Text</button>}
+          {!result && <button type="submit">Generate Story</button>}
         </form>
         {imgResult !== '' && imgResult !== 'loading' && <img src={imgResult} width="200px" />}
         <div className={styles.result}>{result}</div>
@@ -166,6 +169,8 @@ export default function Home() {
           }
         </form>
         <span className="attribute"><a target="_blank" rel="noopener noreferrer" href="https://iconscout.com/lottie/loading-state-3830434">Loading Icon</a> courtesy of Fujio Studio</span>
+      <button onClick={() => setShow(true)}>Settings</button>
+      <Modal onClose={() => setShow(false)} show={show} artStyle={artStyle} setArtStyle={setArtStyle}/>
       </main>
     </div>
   );
