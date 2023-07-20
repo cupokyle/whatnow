@@ -51,6 +51,20 @@ function reducer(state, action) {
   }
 }
 
+function processArray(arr) {
+  const seen = new Set();
+  return arr.map(str => str.trim()) // Remove whitespace
+            .filter(str => { 
+                if (seen.has(str)) { 
+                    return false; // If we've seen the string, exclude it
+                } else {
+                    seen.add(str); // Add new string to the Set
+                    return true; // Include new strings
+                }
+            })
+            .join('. '); // Convert array into one string of sentences
+}
+
 
 async function onSubmitHandling(prompt, state, dispatch, artStyle) {
   const imgData = {
@@ -71,6 +85,9 @@ async function onSubmitHandling(prompt, state, dispatch, artStyle) {
     let jsonObject = JSON.parse(jsonString);
 
     let apiPrompt = state.summary ? `${state.summary}. ${prompt}` : prompt;
+    console.log('processed', processArray(apiPrompt.split('.')));
+
+    apiPrompt = processArray(apiPrompt.split('.'));
 
     const [storyData, imgRes] = await Promise.all([
       fetchData(
@@ -80,7 +97,7 @@ async function onSubmitHandling(prompt, state, dispatch, artStyle) {
           "messages": [
             {
               "role": "user",
-              "content": `You are generating a story and choices for the player of a narrative adventure game. Please generate only a JSON object with these exact seven keys: result, leftButton, rightButton, leftTwoButton, rightTwoButton, randomEvent, and summary. The summary key should summarize what has previously happened in the story. All four of the left and right button keys represent the next choices the player can make. You must use the exact same key names that are in the example! The choices should all vary from one another and be quite unique. Some can be expected, some more funny, and some very creative. Your response should be formatted exactly as shown in this example: ${jsonObject}. Now when you generate your result, this should be the prompt that you base the strings in your JSON off of: ${apiPrompt}.`
+              "content": `You are generating a story and choices for the player of a narrative adventure game. Please generate only a JSON object with these exact seven keys: result, leftButton, rightButton, leftTwoButton, rightTwoButton, randomEvent, and summary. The summary key should summarize what has previously happened in the story. All four of the left and right button keys represent the next choices the player can make. You must use the exact same key names that are in the example! The choices should all vary from one another and be quite unique. Make sure to generate interesting new choices for each. Some can be expected, some more funny, and some very creative. Your response should be formatted exactly as shown in this example: ${jsonObject}. Now when you generate your result, this should be the prompt that you base the strings in your JSON off of: ${apiPrompt}.`
             }
           ]
         }
