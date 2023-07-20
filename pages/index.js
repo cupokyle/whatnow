@@ -21,7 +21,7 @@ const initialState = {
   artStyle: "digital art",
   storyStarting: false,
   pageError: false,
-  // history: [],
+  summary: '',
 };
 
 function reducer(state, action) {
@@ -38,12 +38,12 @@ function reducer(state, action) {
       return { ...state, show: action.payload };
     case 'SET_ART_STYLE':
       return { ...state, artStyle: action.payload };
-    // case 'UPDATE_HISTORY':
-    //     if (state.history.length >= 10) {
-    //       return { ...state, history: [...state.history.slice(1), action.payload] };
-    //     } else {
-    //       return { ...state, history: [...state.history, action.payload] };
-    //     }
+      case 'UPDATE_HISTORY':
+        return {
+            ...state,
+            summary: state.summary + " " + action.payload,
+            error: null
+          };
     case 'ERROR':
       return { ...state, storyStarting: false, pageError: true };
     default:
@@ -53,11 +53,6 @@ function reducer(state, action) {
 
 
 async function onSubmitHandling(prompt, state, dispatch, artStyle) {
-  // const imgData = {
-  //   "prompt": `${state.history.join(' ') + " " + prompt}, ${artStyle}`,
-  //   "n": 1,
-  //   "size": "1024x1024"
-  // };
   const imgData = {
     "prompt": `${prompt}, ${artStyle}`,
     "n": 1,
@@ -68,18 +63,45 @@ async function onSubmitHandling(prompt, state, dispatch, artStyle) {
     method: 'post',
     url: 'https://api.openai.com/v1/images/generations',
     headers: { 'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
-    data: `${JSON.stringify(imgData)}`
+    data: imgData
   };
 
   try {
-    let jsonString = `{"result": "You walk to the bank. The bank is a bustling building. Many people are entering and exiting with wads of cash in their hands.","leftButton": "Go inside the bank to open a chequing account","rightButton": "Think about banks quizically","leftTwoButton": "Scream the word Bank until you can't breathe anymore","rightTwoButton": "Throw a rock at the window.","randomEvent": "You gain the ability to invest!"}`;
+    let jsonString = `{"result": "You walk to the bank. The bank is a bustling building. Many people are entering and exiting with wads of cash in their hands.","leftButton": "Go inside the bank to open a chequing account","rightButton": "Think about banks quizically","leftTwoButton": "Scream the word Bank until you can't breathe anymore","rightTwoButton": "Throw a rock at the window.","randomEvent": "You gain the ability to invest!", "summary": "You're about to enter a bank. You have the power to invest."}`;
     let jsonObject = JSON.parse(jsonString);
-    const [storyData, imgRes] = await Promise.all([fetchData("https://api.openai.com/v1/chat/completions", { "model": "gpt-3.5-turbo", "messages": [ {"role": "system", "content": `You are generating a story and choices for the player of a narrative adventure game. Please generate only a JSON object with these exact six keys: result, leftButton, rightButton, leftTwoButton, rightTwoButton, and randomEvent. All four of the left and right button keys represent the next choices the player can make. Your response should be formatted exactly as shown in this example: ${jsonObject} Now when you generate your result, this should be the prompt that you base the strings in your JSON off of: ${prompt}. You must use the exact same key names that are in the example! The choices should all vary from one another and be quite unique. Some can be expected, some more funny, and some very creative.`} ] }), axios(config)]);
-    const endResult = JSON.parse(storyData.choices[0].message.content);
-    // Dispatch the UPDATE_HISTORY action here
-    // dispatch({ type: 'UPDATE_HISTORY', payload: endResult.result });
-    dispatch({ type: 'UPDATE_DATA', payload: { ...endResult, imgResult: imgRes.data.data[0].url } });
-dispatch({ type: 'UPDATE_DATA', payload: { ...endResult, imgResult: imgRes.data.data[0].url } });
+
+    let apiPrompt = state.summary ? `${state.summary}. ${prompt}` : prompt;
+
+    const [storyData, imgRes] = await Promise.all([
+      fetchData(
+        "https://api.openai.com/v1/chat/completions",
+        {
+          "model": "gpt-3.5-turbo",
+          "messages": [
+            {
+              "role": "user",
+              "content": `You are generating a story and choices for the player of a narrative adventure game. Please generate only a JSON object with these exact seven keys: result, leftButton, rightButton, leftTwoButton, rightTwoButton, randomEvent, and summary. The summary key should summarize what has previously happened in the story. All four of the left and right button keys represent the next choices the player can make. You must use the exact same key names that are in the example! The choices should all vary from one another and be quite unique. Some can be expected, some more funny, and some very creative. Your response should be formatted exactly as shown in this example: ${jsonObject}. Now when you generate your result, this should be the prompt that you base the strings in your JSON off of: ${apiPrompt}.`
+            }
+          ]
+        }
+      ),
+      axios(config)
+    ]);
+    let endResult;
+    try {
+        endResult = JSON.parse(storyData.choices[0].message.content);
+        if (typeof endResult !== 'object' || endResult === null) {
+            throw new Error(`endResult is not an object: ${endResult}`);
+        }
+    } catch (error) {
+        console.error('Error parsing JSON:', error);
+    }
+    
+    if (endResult) {
+        dispatch({ type: 'UPDATE_DATA', payload: { ...endResult, imgResult: imgRes.data.data[0].url } });
+        dispatch({ type: 'UPDATE_HISTORY', payload: endResult.summary });
+    }
+    
 
   } catch (error) {
     console.error(error);
@@ -87,15 +109,18 @@ dispatch({ type: 'UPDATE_DATA', payload: { ...endResult, imgResult: imgRes.data.
   }
 }
 
+
+
 export default function Home() {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const onSubmit = (event) => {
     event.preventDefault();
     dispatch({ type: 'STORY_START' });
-    // Concatenate the history and current userInput to form the new prompt
-    // const newPrompt = state.history.concat(state.userInput).join(' ');
+    // Use the user's input directly as the newPrompt without adding it to the history
     const newPrompt = state.userInput;
+    console.log('after onsubmit: newPrompt:', newPrompt);
+
     onSubmitHandling(newPrompt, state, dispatch, state.artStyle);
   };
   
@@ -104,11 +129,12 @@ export default function Home() {
     dispatch({ type: 'STORY_START' });
     let triggerEvent = Math.floor((Math.random() * 10) + 1);
     dispatch({ type: 'UPDATE_TRIGGER', payload: triggerEvent });
-    // Concatenate the history and current userInput to form the new prompt
-    // const newPrompt = state.history.concat('You ' + state.userInput).join(' ');
+    // Use the user's choice directly as the newPrompt
     const newPrompt = 'You ' + state.userInput;
     onSubmitHandling(newPrompt, state, dispatch, state.artStyle);
   };
+  
+  
 
   // Render function starts here
 return (
