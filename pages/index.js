@@ -1,202 +1,199 @@
 import Head from "next/head";
-import { useState } from "react";
+import { useReducer } from "react";
 import styles from "./index.module.css";
 import axios from 'axios';
 import Loading from './Loading';
 import Modal from "./Modal/Modal";
+import { fetchData } from '../lib/utils';
+
+
+const initialState = {
+  userInput: "",
+  result: "",
+  leftButton: "",
+  rightButton: "",
+  leftTwoButton: "",
+  rightTwoButton: "",
+  randomEvent: "",
+  triggerNumber: 0,
+  imgResult: "",
+  show: false,
+  artStyle: "digital art",
+  storyStarting: false,
+  pageError: false,
+  // history: [],
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'STORY_START':
+      return { ...state, storyStarting: true, imgResult: 'loading' };
+    case 'UPDATE_DATA':
+      return { ...state, ...action.payload, storyStarting: false };
+    case 'UPDATE_USER_INPUT':
+      return { ...state, userInput: action.payload };
+    case 'UPDATE_TRIGGER':
+      return { ...state, triggerNumber: action.payload };
+    case 'SET_SHOW':
+      return { ...state, show: action.payload };
+    case 'SET_ART_STYLE':
+      return { ...state, artStyle: action.payload };
+    // case 'UPDATE_HISTORY':
+    //     if (state.history.length >= 10) {
+    //       return { ...state, history: [...state.history.slice(1), action.payload] };
+    //     } else {
+    //       return { ...state, history: [...state.history, action.payload] };
+    //     }
+    case 'ERROR':
+      return { ...state, storyStarting: false, pageError: true };
+    default:
+      throw new Error();
+  }
+}
+
+
+async function onSubmitHandling(prompt, state, dispatch, artStyle) {
+  // const imgData = {
+  //   "prompt": `${state.history.join(' ') + " " + prompt}, ${artStyle}`,
+  //   "n": 1,
+  //   "size": "1024x1024"
+  // };
+  const imgData = {
+    "prompt": `${prompt}, ${artStyle}`,
+    "n": 1,
+    "size": "1024x1024"
+  };
+
+  const config = {
+    method: 'post',
+    url: 'https://api.openai.com/v1/images/generations',
+    headers: { 'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
+    data: `${JSON.stringify(imgData)}`
+  };
+
+  try {
+    let jsonString = `{"result": "You walk to the bank. The bank is a bustling building. Many people are entering and exiting with wads of cash in their hands.","leftButton": "Go inside the bank to open a chequing account","rightButton": "Think about banks quizically","leftTwoButton": "Scream the word Bank until you can't breathe anymore","rightTwoButton": "Throw a rock at the window.","randomEvent": "You gain the ability to invest!"}`;
+    let jsonObject = JSON.parse(jsonString);
+    const [storyData, imgRes] = await Promise.all([fetchData("https://api.openai.com/v1/chat/completions", { "model": "gpt-3.5-turbo", "messages": [ {"role": "system", "content": `You are generating a story and choices for the player of a narrative adventure game. Please generate only a JSON object with these exact six keys: result, leftButton, rightButton, leftTwoButton, rightTwoButton, and randomEvent. All four of the left and right button keys represent the next choices the player can make. Your response should be formatted exactly as shown in this example: ${jsonObject} Now when you generate your result, this should be the prompt that you base the strings in your JSON off of: ${prompt}. You must use the exact same key names that are in the example! The choices should all vary from one another and be quite unique. Some can be expected, some more funny, and some very creative.`} ] }), axios(config)]);
+    const endResult = JSON.parse(storyData.choices[0].message.content);
+    // Dispatch the UPDATE_HISTORY action here
+    // dispatch({ type: 'UPDATE_HISTORY', payload: endResult.result });
+    dispatch({ type: 'UPDATE_DATA', payload: { ...endResult, imgResult: imgRes.data.data[0].url } });
+dispatch({ type: 'UPDATE_DATA', payload: { ...endResult, imgResult: imgRes.data.data[0].url } });
+
+  } catch (error) {
+    console.error(error);
+    dispatch({ type: 'ERROR' });
+  }
+}
 
 export default function Home() {
-  const [userInput, setUserInput] = useState("");
-  const [result, setResult] = useState("");
-  const [leftButton, setLeftButton] = useState("");
-  const [rightButton, setRightButton] = useState("");
-  const [leftTwoButton, setLeftTwoButton] = useState("");
-  const [rightTwoButton, setRightTwoButton] = useState("");
-  const [randomEvent, setRandomEvent] = useState("");
-  const [triggerNumber, setTriggerNumber] = useState(0);
-  const [imgResult, setImgResult] = useState("");
-  const [show, setShow] = useState(false);
-  const [artStyle, setArtStyle] = useState("digital art");
-  const [storyStarting, setStoryStarting] = useState(false);
-  const [pageError, setPageError] = useState(false);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-  async function onSubmit(event) {
+  const onSubmit = (event) => {
     event.preventDefault();
-    setStoryStarting(true);
-    setImgResult('loading');
-    const response = await fetch("/api/generate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ prompty: userInput }),
-    });
-
-    var imgdata = JSON.stringify({
-      "prompt": userInput + `, ${artStyle}`,
-      "n": 1,
-      "size": "1024x1024"
-    });
-
-    var config = {
-      method: 'post',
-      url: 'https://api.openai.com/v1/images/generations',
-      headers: {
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      data: imgdata
-    };
-    axios(config)
-      .then(function (res) {
-        setImgResult(res.data.data[0].url);
-      })
-      .catch(function (error) {
-        console.log(error);
-        setPageError(true);
-      });
-
-    const data = await response.json();
-    const newData = JSON.parse(data.result);
-    setResult(newData.context);
-    setLeftButton(newData.leftButton);
-    setRightButton(newData.rightButton);
-    setLeftTwoButton(newData.leftTwoButton);
-    setRightTwoButton(newData.rightTwoButton);
-    setRandomEvent(newData.randomEvent);
-    setStoryStarting(false);
-    setUserInput("");
-  }
-  async function onSubmitButton(event) {
+    dispatch({ type: 'STORY_START' });
+    // Concatenate the history and current userInput to form the new prompt
+    // const newPrompt = state.history.concat(state.userInput).join(' ');
+    const newPrompt = state.userInput;
+    onSubmitHandling(newPrompt, state, dispatch, state.artStyle);
+  };
+  
+  const onSubmitButton = (event) => {
     event.preventDefault();
-    setImgResult('loading');
+    dispatch({ type: 'STORY_START' });
     let triggerEvent = Math.floor((Math.random() * 10) + 1);
-    setTriggerNumber(triggerEvent);
-    const response = await fetch("/api/generate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ prompty: "You " + userInput }),
-    });
-    const data = await response.json();
-    const newData = JSON.parse(data.result);
+    dispatch({ type: 'UPDATE_TRIGGER', payload: triggerEvent });
+    // Concatenate the history and current userInput to form the new prompt
+    // const newPrompt = state.history.concat('You ' + state.userInput).join(' ');
+    const newPrompt = 'You ' + state.userInput;
+    onSubmitHandling(newPrompt, state, dispatch, state.artStyle);
+  };
 
-    var imgdata = JSON.stringify({
-      "prompt": "You " + userInput + `, ${artStyle}`,
-      "n": 1,
-      "size": "1024x1024"
-    });
+  // Render function starts here
+return (
+  <div>
+    <Head>
+      <title>What Now?</title>
+      <link rel="icon" href="/badlibs.png" />
+    </Head>
 
-    var config = {
-      method: 'post',
-      url: 'https://api.openai.com/v1/images/generations',
-      headers: {
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      data: imgdata
-    };
+    <main className={styles.main}>
+      <img src="/badlibs.png" className={styles.icon} />
+      <h3>What Now?</h3>
+      {state.imgResult === 'loading' && <Loading />}
+      {!state.storyStarting && <form onSubmit={onSubmit}>
+        {!state.result && (
+          <input
+            type="text"
+            name="prompty"
+            placeholder="Enter a prompt"
+            value={state.userInput}
+            onChange={(e) => dispatch({ type: 'UPDATE_USER_INPUT', payload: e.target.value })}
+          />
+        )}
+        {!state.result && <button type="submit">Generate Story</button>}
+      </form>}
+      {state.imgResult !== '' && state.imgResult !== 'loading' && <img src={state.imgResult} width="200px" />}
+      {state.pageError && <h4 className={styles.error}>Due to AI limitations or banned request, this prompt cannot be completed.</h4>}
+      {state.pageError && <h5 className={styles.error2}>Please refresh the page</h5>}
 
-    axios(config)
-      .then(function (res) {
-        setImgResult(res.data.data[0].url);
-      })
-      .catch(function (error) {
-        console.log(error);
-        setPageError(true);
-      });
-
-    setResult(newData.context);
-    setLeftButton(newData.leftButton);
-    setRightButton(newData.rightButton);
-    setLeftTwoButton(newData.leftTwoButton);
-    setRightTwoButton(newData.rightTwoButton);
-    setRandomEvent(newData.randomEvent);
-    setUserInput("");
-  }
-  return (
-    <div>
-      <Head>
-        <title>What Now?</title>
-        <link rel="icon" href="/badlibs.png" />
-      </Head>
-
-      <main className={styles.main}>
-        <img src="/badlibs.png" className={styles.icon} />
-        <h3>What Now?</h3>
-        {imgResult === 'loading' && <Loading />}
-        {!storyStarting && <form onSubmit={onSubmit}>
-          {!result && (
-            <input
-              type="text"
+      <div className={styles.result}>{state.result}</div>
+      <form onSubmit={onSubmitButton} className={styles.buttonbox}>
+        {state.result && !state.leftButton && !state.rightButton && !state.leftTwoButton && !state.rightTwoButton && <h3>Game Over</h3>}
+        {state.imgResult !== 'loading' && (state.triggerNumber === 10 || state.triggerNumber === 1) && state.result && state.randomEvent &&
+          <div className={styles.achievement}>
+            <img alt="star" src="/star-shape.png" width="20px" height="20px"></img>
+            <h4 className={styles.congrats}> &nbsp;&nbsp;Congratulations!&nbsp; </h4>
+            <h4
+              className={styles.random}
               name="prompty"
-              placeholder="Enter a prompt"
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-            />
-          )}
-          {!result && <button type="submit">Generate Story</button>}
-        </form>}
-        {imgResult !== '' && imgResult !== 'loading' && <img src={imgResult} width="200px" />}
-          {pageError && <h4 className={styles.error}>Due to AI limitations or banned request, this prompt cannot be completed.</h4>}
-          {pageError && <h5 className={styles.error2}>Please refresh the page</h5>}
+            >{state.randomEvent} &nbsp;&nbsp;</h4>
+            <img alt="star" src="/star-shape.png" width="20px" height="20px"></img>
+          </div>
+        }
+        {state.imgResult !== 'loading' && state.result && state.leftButton &&
+          <button
+            className={styles.button}
+            type="submit"
+            name="prompty"
+            value={state.leftButton}
+            onClick={(e) => dispatch({ type: 'UPDATE_USER_INPUT', payload: e.target.value })}
+          >{state.leftButton}</button>
+        }
+        {state.imgResult !== 'loading' && state.result && state.rightButton &&
+          <button
+            className={styles.button}
+            type="submit"
+            name="prompty"
+            value={state.rightButton}
+            onClick={(e) => dispatch({ type: 'UPDATE_USER_INPUT', payload: e.target.value })}
+          >{state.rightButton}</button>
+        }
+        {state.imgResult !== 'loading' && state.result && state.leftTwoButton &&
+          <button
+            className={styles.button}
+            type="submit"
+            name="prompty"
+            value={state.leftTwoButton}
+            onClick={(e) => dispatch({ type: 'UPDATE_USER_INPUT', payload: e.target.value })}
+          >{state.leftTwoButton}</button>
+        }
+        {state.imgResult !== 'loading' && state.result && state.rightTwoButton &&
+          <button
+            className={styles.button}
+            type="submit"
+            name="prompty"
+            value={state.rightTwoButton}
+            onClick={(e) => dispatch({ type: 'UPDATE_USER_INPUT', payload: e.target.value })}
+          >{state.rightTwoButton}</button>
+        }
+      </form>
+      <span className="attribute"><a href="https://iconscout.com/icons/star-shape" target="_blank">Star Shape Icon</a> by <a href="https://iconscout.com/contributors/unicons">Unicons Font</a> on <a href="https://iconscout.com">IconScout</a> and <a target="_blank" rel="noopener noreferrer" href="https://iconscout.com/lottie/loading-state-3830434">Loading Icon</a> courtesy of Fujio Studio</span>
+      <button onClick={() => dispatch({ type: 'SET_SHOW', payload: true })}>Settings</button>
+      <Modal onClose={() => dispatch({ type: 'SET_SHOW', payload: false })} show={state.show} artStyle={state.artStyle} setArtStyle={(value) => dispatch({ type: 'SET_ART_STYLE', payload: value })} />
+    </main>
+  </div>
+);
 
-        <div className={styles.result}>{result}</div>
-        <form onSubmit={onSubmitButton} className={styles.buttonbox}>
-          {result && !leftButton && !rightButton && !leftTwoButton && !rightTwoButton && <h3>Game Over</h3>}
-          {imgResult !== 'loading' && (triggerNumber === 10 || triggerNumber === 1) && result && randomEvent &&
-            <div className={styles.achievement}>
-              <img alt="star" src="/star-shape.png" width="20px" height="20px"></img>
-              <h4 className={styles.congrats}> &nbsp;&nbsp;Congratulations!&nbsp; </h4>
-              <h4
-                className={styles.random}
-                name="prompty"
-              >{randomEvent} &nbsp;&nbsp;</h4>
-              <img alt="star" src="/star-shape.png" width="20px" height="20px"></img>
-            </div>
-          }
-          {imgResult !== 'loading' && result && leftButton &&
-            <button
-              className={styles.button}
-              type="submit"
-              name="prompty"
-              value={leftButton}
-              onClick={(e) => setUserInput(e.target.value)}
-            >{leftButton}</button>
-          }
-          {imgResult !== 'loading' && result && rightButton &&
-            <button
-              className={styles.button}
-              type="submit"
-              name="prompty"
-              value={rightButton}
-              onClick={(e) => setUserInput(e.target.value)}
-            >{rightButton}</button>
-          }
-          {imgResult !== 'loading' && result && leftTwoButton &&
-            <button
-              className={styles.button}
-              type="submit"
-              name="prompty"
-              value={leftTwoButton}
-              onClick={(e) => setUserInput(e.target.value)}
-            >{leftTwoButton}</button>
-          }
-          {imgResult !== 'loading' && result && rightTwoButton &&
-            <button
-              className={styles.button}
-              type="submit"
-              name="prompty"
-              value={rightTwoButton}
-              onClick={(e) => setUserInput(e.target.value)}
-            >{rightTwoButton}</button>
-          }
-        </form>
-        <span className="attribute"><a href="https://iconscout.com/icons/star-shape" target="_blank">Star Shape Icon</a> by <a href="https://iconscout.com/contributors/unicons">Unicons Font</a> on <a href="https://iconscout.com">IconScout and </a><a target="_blank" rel="noopener noreferrer" href="https://iconscout.com/lottie/loading-state-3830434">Loading Icon</a> courtesy of Fujio Studio</span>
-        <button onClick={() => setShow(true)}>Settings</button>
-        <Modal onClose={() => setShow(false)} show={show} artStyle={artStyle} setArtStyle={setArtStyle} />
-      </main>
-    </div>
-  );
 }

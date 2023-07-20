@@ -1,0 +1,8 @@
+{
+    "context": "You are visiting the Eugene Bird Company, a digital art museum that features interactive exhibitions centered around bird-themed artwork. You step into a vibrant room filled with colorful projections of flying birds. As you admire the art, you notice a series of touch screens lining one wall.",
+    "leftButton": "Read about the artist",
+    "rightButton": "Interact with the touch screens",
+    "leftTwoButton": "Explore other exhibits",
+    "rightTwoButton": "Leave the museum",
+    "randomEvent": "You find a hidden panel behind one of the touch screens, revealing a secret room with rare bird specimens."
+  }
