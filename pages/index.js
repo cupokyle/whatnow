@@ -53,18 +53,25 @@ function reducer(state, action) {
 
 function processArray(arr) {
   const seen = new Set();
+
   return arr.map(str => str.trim()) // Remove whitespace
-            .filter(str => { 
-                if (seen.has(str)) { 
+            .filter(str => {
+                // Test if the string only contains whitespace or punctuation
+                if (/^[\s]*$/.test(str) || /^[!-\/:-@[-`{-~]*$/.test(str)) {
+                    // console.log('Removing because it only contains whitespace or punctuation:', str);
+                    return false;
+                }
+                if (seen.has(str)) {
+                    // console.log(seen, 'includes', str, '\nRemoving:', str);
                     return false; // If we've seen the string, exclude it
                 } else {
+                    // console.log(seen, 'does not include', str, '\nKeeping:', str);
                     seen.add(str); // Add new string to the Set
                     return true; // Include new strings
                 }
             })
             .join('. '); // Convert array into one string of sentences
 }
-
 
 async function onSubmitHandling(prompt, state, dispatch, artStyle) {
   const imgData = {
@@ -85,9 +92,9 @@ async function onSubmitHandling(prompt, state, dispatch, artStyle) {
     let jsonObject = JSON.parse(jsonString);
 
     let apiPrompt = state.summary ? `${state.summary}. ${prompt}` : prompt;
-    console.log('processed', processArray(apiPrompt.split('.')));
-
+    
     apiPrompt = processArray(apiPrompt.split('.'));
+    // console.log('processed', apiPrompt);
 
     const [storyData, imgRes] = await Promise.all([
       fetchData(
@@ -97,7 +104,7 @@ async function onSubmitHandling(prompt, state, dispatch, artStyle) {
           "messages": [
             {
               "role": "user",
-              "content": `You are generating a story and choices for the player of a narrative adventure game. Please generate only a JSON object with these exact seven keys: result, leftButton, rightButton, leftTwoButton, rightTwoButton, randomEvent, and summary. The summary key should summarize what has previously happened in the story. All four of the left and right button keys represent the next choices the player can make. You must use the exact same key names that are in the example! The choices should all vary from one another and be quite unique. Make sure to generate interesting new choices for each. Some can be expected, some more funny, and some very creative. Your response should be formatted exactly as shown in this example: ${jsonObject}. Now when you generate your result, this should be the prompt that you base the strings in your JSON off of: ${apiPrompt}.`
+              "content": `You are generating a story and choices for the player of a narrative adventure game. Everything must be written in the second-person point of view. Please generate only a JSON object with these exact seven keys: result, leftButton, rightButton, leftTwoButton, rightTwoButton, randomEvent, and summary. The summary key should summarize what has previously happened in the story. All four of the left and right button keys represent the next choices the player can make. You must use the exact same key names that are in the example! The choices should all vary from one another and be quite unique. Some can be expected, some more funny, and some very creative. The randomEvent should be a maximum of 10 words and recognize a good or bad achievement. Your response should be formatted exactly as shown in this example: ${jsonObject}. Now when you generate your result, this should be the prompt that you base the strings in your JSON off of: ${apiPrompt}.`
             }
           ]
         }
@@ -136,7 +143,7 @@ export default function Home() {
     dispatch({ type: 'STORY_START' });
     // Use the user's input directly as the newPrompt without adding it to the history
     const newPrompt = state.userInput;
-    console.log('after onsubmit: newPrompt:', newPrompt);
+    // console.log('after onsubmit: newPrompt:', newPrompt);
 
     onSubmitHandling(newPrompt, state, dispatch, state.artStyle);
   };
@@ -154,6 +161,8 @@ export default function Home() {
   
 
   // Render function starts here
+  // console.log(state.result, state.leftButton, state.rightButton, state.leftTwoButton, state.rightTwoButton, state.randomEvent);
+
 return (
   <div>
     <Head>
