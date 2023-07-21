@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { useReducer } from "react";
+import React, { useReducer } from "react";
 import styles from "./index.module.css";
 import axios from 'axios';
 import Loading from './Loading';
@@ -57,6 +57,7 @@ function processArray(arr) {
   return arr.map(str => str.trim()) // Remove whitespace
             .filter(str => {
                 // Test if the string only contains whitespace or punctuation
+                // eslint-disable-next-line no-useless-escape
                 if (/^[\s]*$/.test(str) || /^[!-\/:-@[-`{-~]*$/.test(str)) {
                     // console.log('Removing because it only contains whitespace or punctuation:', str);
                     return false;
@@ -83,18 +84,17 @@ async function onSubmitHandling(prompt, state, dispatch, artStyle) {
   const config = {
     method: 'post',
     url: 'https://api.openai.com/v1/images/generations',
+    // eslint-disable-next-line no-undef
     headers: { 'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
     data: imgData
   };
 
   try {
-    let jsonString = `{"result": "You walk to the bank. The bank is a bustling building. Many people are entering and exiting with wads of cash in their hands.","leftButton": "Go inside the bank to open a chequing account","rightButton": "Think about banks quizically","leftTwoButton": "Scream the word Bank until you can't breathe anymore","rightTwoButton": "Throw a rock at the window.","randomEvent": "You gain the ability to invest!", "summary": "You're about to enter a bank. You have the power to invest."}`;
-    let jsonObject = JSON.parse(jsonString);
 
     let apiPrompt = state.summary ? `${state.summary}. ${prompt}` : prompt;
     
     apiPrompt = processArray(apiPrompt.split('.'));
-    // console.log('processed', apiPrompt);
+    console.log('processed', apiPrompt);
 
     const [storyData, imgRes] = await Promise.all([
       fetchData(
@@ -104,7 +104,7 @@ async function onSubmitHandling(prompt, state, dispatch, artStyle) {
           "messages": [
             {
               "role": "user",
-              "content": `You are generating a story and choices for the player of a narrative adventure game. Everything must be written in the second-person point of view. Please generate only a JSON object with these exact seven keys: result, leftButton, rightButton, leftTwoButton, rightTwoButton, randomEvent, and summary. The summary key should summarize what has previously happened in the story. All four of the left and right button keys represent the next choices the player can make. You must use the exact same key names that are in the example! The choices should all vary from one another and be quite unique. Some can be expected, some more funny, and some very creative. The randomEvent should be a maximum of 10 words and recognize a good or bad achievement. Your response should be formatted exactly as shown in this example: ${jsonObject}. Now when you generate your result, this should be the prompt that you base the strings in your JSON off of: ${apiPrompt}.`
+              "content": `You are generating a story and choices for the player of a realistic, narrative role-playing game. Everything must be written in the second-person point of view. Please generate only a JSON object with these exact seven keys: result, leftButton, rightButton, leftTwoButton, rightTwoButton, randomEvent, and summary. The summary key should summarize key events, characters, interactions, and locations previously mentioned in the story. The summary does not need to mention the different choices presented to the player. All four of the left and right button keys represent the next choices the player can make. You must use the exact same key names that are in the example! The choices should all vary from one another and be quite unique. Some can be expected, some more funny, and some very creative. The randomEvent should be a maximum of 10 words and recognize a good or bad achievement. When you generate your result, this should be the prompt that you base the strings in your JSON off of: ${apiPrompt}.`
             }
           ]
         }
@@ -241,7 +241,7 @@ return (
           >{state.rightTwoButton}</button>
         }
       </form>
-      <span className="attribute"><a href="https://iconscout.com/icons/star-shape" target="_blank">Star Shape Icon</a> by <a href="https://iconscout.com/contributors/unicons">Unicons Font</a> on <a href="https://iconscout.com">IconScout</a> and <a target="_blank" rel="noopener noreferrer" href="https://iconscout.com/lottie/loading-state-3830434">Loading Icon</a> courtesy of Fujio Studio</span>
+      <span className="attribute"><a rel="noopener noreferrer" href="https://iconscout.com/icons/star-shape" target="_blank">Star Shape Icon</a> by <a href="https://iconscout.com/contributors/unicons">Unicons Font</a> on <a href="https://iconscout.com">IconScout</a> and <a target="_blank" rel="noopener noreferrer" href="https://iconscout.com/lottie/loading-state-3830434">Loading Icon</a> courtesy of Fujio Studio</span>
       <button onClick={() => dispatch({ type: 'SET_SHOW', payload: true })}>Settings</button>
       <Modal onClose={() => dispatch({ type: 'SET_SHOW', payload: false })} show={state.show} artStyle={state.artStyle} setArtStyle={(value) => dispatch({ type: 'SET_ART_STYLE', payload: value })} />
     </main>

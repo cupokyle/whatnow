@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PropTypes from 'prop-types';
 import styles from "../index.module.css";
 
 const Modal = props => {
@@ -39,5 +40,12 @@ const Modal = props => {
         </div>
     )
 }
+
+Modal.propTypes = {
+    show: PropTypes.bool.isRequired,
+    onClose: PropTypes.func.isRequired,
+    setArtStyle: PropTypes.func.isRequired,
+    artStyle: PropTypes.string
+};
 
 export default Modal
