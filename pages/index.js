@@ -78,14 +78,18 @@ async function onSubmitHandling(prompt, state, dispatch, artStyle) {
   const imgData = {
     "prompt": `${prompt}, ${artStyle}`,
     "n": 1,
-    "size": "1024x1024"
+    "size": "1024x1024",
+    "model": "dall-e-3" // Specify the model here
   };
 
   const config = {
     method: 'post',
     url: 'https://api.openai.com/v1/images/generations',
-    // eslint-disable-next-line no-undef
-    headers: { 'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
+    headers: {
+      // eslint-disable-next-line no-undef
+      'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
     data: imgData
   };
 
@@ -100,7 +104,7 @@ async function onSubmitHandling(prompt, state, dispatch, artStyle) {
       fetchData(
         "https://api.openai.com/v1/chat/completions",
         {
-          "model": "gpt-3.5-turbo",
+          "model": "gpt-3.5-turbo-1106",
           "messages": [
             {
               "role": "user",
@@ -109,7 +113,7 @@ async function onSubmitHandling(prompt, state, dispatch, artStyle) {
           ]
         }
       ),
-      axios(config)
+      axios(config) // This is the updated DALL-E 3 call
     ]);
     let endResult;
     try {
@@ -122,8 +126,11 @@ async function onSubmitHandling(prompt, state, dispatch, artStyle) {
     }
     
     if (endResult) {
-        dispatch({ type: 'UPDATE_DATA', payload: { ...endResult, imgResult: imgRes.data.data[0].url } });
-        dispatch({ type: 'UPDATE_HISTORY', payload: endResult.summary });
+      dispatch({
+        type: 'UPDATE_DATA',
+        payload: { ...endResult, imgResult: imgRes.data.data[0].url } // Extract the image URL
+      });
+      dispatch({ type: 'UPDATE_HISTORY', payload: endResult.summary });
     }
     
 
