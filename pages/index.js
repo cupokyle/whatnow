@@ -5,7 +5,8 @@ import axios from 'axios';
 import Loading from './Loading';
 import Modal from "./Modal/Modal";
 import { fetchData } from '../lib/utils';
-
+import dotenv from 'dotenv';
+dotenv.config();
 
 const initialState = {
   userInput: "",
@@ -104,13 +105,14 @@ async function onSubmitHandling(prompt, state, dispatch, artStyle) {
       fetchData(
         "https://api.openai.com/v1/chat/completions",
         {
-          "model": "gpt-3.5-turbo-1106",
           "messages": [
             {
               "role": "user",
               "content": `You are generating a story and choices for the player of a realistic, narrative role-playing game. Everything must be written in the second-person point of view. Please generate only a JSON object with these exact seven keys: result, leftButton, rightButton, leftTwoButton, rightTwoButton, randomEvent, and summary. The summary key should summarize key events, characters, interactions, and locations previously mentioned in the story. The summary does not need to mention the different choices presented to the player. All four of the left and right button keys represent the next choices the player can make. You must use the exact same key names that are in the example! The choices should all vary from one another and be quite unique. Some can be expected, some more funny, and some very creative. The randomEvent should be a maximum of 10 words and recognize a good or bad achievement. When you generate your result, this should be the prompt that you base the strings in your JSON off of: ${apiPrompt}.`
             }
-          ]
+          ],
+          "model": "gpt-3.5-turbo-0125",
+          response_format: { type: "json_object" },
         }
       ),
       axios(config) // This is the updated DALL-E 3 call
