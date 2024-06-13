@@ -1,5 +1,3 @@
-// pages/api/fetchData.js
-// import { Configuration, OpenAIApi } from 'openai';
 const OpenAIApi = require('openai');
 const configuration = {
   apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
