@@ -1,18 +1,14 @@
 import React from "react";
-import Lottie from "react-lottie";
+import Lottie from "lottie-react"; // Try this if the named import doesn't work
 import animationData from "./loading-state.json";
 
 function Loading() {
-  const defaultOptions = {
-    loop: true,
-    autoplay: true,
-    animationData: animationData,
-    rendererSettings: {
-    //   preserveAspectRatio: "xMidYMid slice",
-    },
-  };
+  if (!Lottie) {
+    console.error("Lottie is not defined. Please check the import.");
+    return null;
+  }
 
-  return <Lottie options={defaultOptions} height="100px" width="100px" />;
+  return <Lottie animationData={animationData} style={{ height: 100, width: 100 }} />;
 }
 
 export default Loading;

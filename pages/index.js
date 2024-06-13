@@ -99,7 +99,7 @@ async function onSubmitHandling(prompt, state, dispatch, artStyle) {
     let apiPrompt = state.summary ? `${state.summary}. ${prompt}` : prompt;
     
     apiPrompt = processArray(apiPrompt.split('.'));
-    console.log('processed', apiPrompt);
+    // console.log('processed', apiPrompt);
 
     const [storyData, imgRes] = await Promise.all([
       fetchData(
